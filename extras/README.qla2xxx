@@ -1,0 +1,789 @@
+
+              Marvell QLogic FC Linux Driver Readme File		
+			      Marvell.
+                        All rights reserved
+
+
+Table of Contents
+
+
+1. Package Contents
+2. Supported Adapters/Controllers
+3. Supported Operating Systems
+4. Installing the Driver
+5. Additional Notes
+6. Contacting Support
+
+
+1. Package Contents
+
+ * qla2xxx-src-v10.02.xx.yy.zz-k.tar.gz - Compressed package that contains
+	Fibre Channel Adapter driver for Linux.
+
+2. Supported adapters
+
+2500 Series Fibre Channel Adapters - Supports FC
+2600 Series Fibre Channel Adapters - Supports FC
+2700 Series Fibre Channel Adapters - Supports both FC and FC-NVMe
+277x Series Fibre Channel Adapters - Supports both FC and FC-NVMe
+2800 Series Fibre Channel Adapters - Supports both FC and FC-NVMe
+
+3. Supported operating systems
+
+The Fibre Channel Adapter driver is compatible with the following platforms:
+
+ * Red Hat RHEL 8.8(4.18.x) on x86_64, PPC64LE, ARM64.
+ * Red Hat RHEL 8.9(4.18.x) on x86_64, PPC64LE, ARM64.
+ * Red Hat RHEL 8.10(4.18.x) on x86_64, PPC64LE, ARM64.
+ * Red Hat RHEL 9.2(5.14.x) on x86_64, PPC64LE, ARM64.
+ * Red Hat RHEL 9.3(5.14.x) on x86_64, PPC64LE, ARM64.
+ * Red Hat RHEL 9.4(5.14.x) on x86_64, PPC64LE, ARM64.
+ * SuSE SLES 12.5(4.12.x) on x86_64, PPC64LE, ARM64, OpenPOWER.
+ * SuSE SLES 15.4(5.14.x) on x86_64, PPC64LE, ARM64, OpenPOWER.
+ * SuSE SLES 15.5(5.14.x) on x86_64, PPC64LE, ARM64, OpenPOWER.
+ * SuSE SLES 15.6(6.4.x) on x86_64, PPC64LE, ARM64, OpenPOWER.
+ * Citrix XenServer 8.2LTS(4.19.x) on x86_64, AMD64, PPC64, ARM64.
+ * Kylin AS 10 SP3(4.19.90-52.xx) on x86, x86_64, ARM64.
+ * OpenEuler 22.03 SP1 LTS(5.10.0-136.xx) on x86, x86_64, ARM64.
+ * OpenEuler 22.03 SP2 LTS(5.10.0-136.xx) on x86, x86_64, ARM64.
+ * UnionTech OS Server 20.1050e(4.19.90-2201.xx) (UOS 20.1050e) on x86, x86_64, ARM64.
+
+4. Installing the driver
+
+This section provides procedures for deploying the driver on various
+Linux versions, including the following:
+
+ * 4.1 Building the Driver for Linux
+ * 4.2 Build Script Directives.
+ * 4.3 NPIV Support.
+ * 4.4 Updating the Driver for Linux from rpm.
+
+Note:
+   Retpoline Compiler Warning
+   For some Linux OS, following warning is seen during driver compile
+
+   warning: objtool: qla2x00_xxx()+0xYY: can't find call dest symbol at offset 0xZZZ
+
+   To avoid these warnings, upgrade the kernel which enables Retpoline support
+   and upgrade GCC version to v7.3 or later.
+
+
+4.1 Building the Driver for Linux
+
+ 1. In the directory that contains the source driver file,
+    qla2xxx-src-10.02.xx.yy.zz-k.tar.gz, issue the following commands:
+
+     # tar -xzvf qla2xxx-src-10.02.xx.yy.zz-k.tar.gz
+     # cd qla2xxx-src-10.02.xx.yy.zz-k
+
+
+ 2. Build and install the driver modules from the source code by
+    executing the build.sh script as follows:
+
+     # ./extras/build.sh install
+
+          ------------------------------------------------------------------
+    NOTE: Installing from source, when a driver binary RPM is already
+          installed, is not supported. Please remove any driver binary RPMs
+          before proceeding with this installation.
+          ------------------------------------------------------------------
+
+    The build.sh script does the following:
+
+    * Builds the driver .ko files.
+
+    * Copies the .ko files to the appropriate
+      /lib/modules/<uname -r>/extra/qlgc-qla2xxx directory.
+
+    * Adds the appropriate directive in the modprobe.conf (if
+      applicable).
+
+ 3. Manually load the driver for Linux Using insmod or modprobe.
+
+    * To directly load the driver from the local build directory,
+      issue the following insmod commands in order:
+
+       # insmod /lib/modules/<uname -r>/kernel/drivers/nvme/host/nvme.ko.xz
+	(if not already loaded)
+
+       # insmod /lib/modules/<uname -r>/kernel/drivers/nvme/host/nvme-core.ko.xz
+	(if not already loaded)
+
+       # insmod /lib/modules/<uname -r>/kernel/drivers/nvme/host/nvme-fabrics.ko.xz
+	(if not already loaded)
+
+       # insmod /lib/modules/<uname -r>/kernel/drivers/nvme/host/nvme-fc.ko.xz
+	(if not already loaded)
+
+       # insmod /lib/modules/<uname -r>/kernel/drivers/scsi/scsi_transport_fc.ko.xz
+	(if not already loaded)
+
+       # insmod qla2xxx.ko
+
+    * To load the driver using modprobe, issue the following command:
+
+       # modprobe -v qla2xxx
+
+    * To unload the driver using modprobe, issue the following
+      command:
+
+       # modprobe -r qla2xxx
+
+ 4. Automatically load the driver by rebuilding the RAM disk to 
+    include the driver as follows:
+
+    a. Edit the /etc/modprobe.d/modprobe.conf file and add the following
+       entry. (Create a modprobe.conf file if it does not exist):
+
+        alias scsi_hostadapterX qla2xxx
+
+       where, X is based on the order of the SCSI modules being
+       loaded.
+
+    b. Create a backup copy of the RAMDISK image by issuing the
+       following commands:
+
+        # cd /boot
+
+        # cp initrd-[kernel version].img initrd-[kernel
+           version].img.bak
+
+        # mkinitrd -f initrd-[kernel version].img `uname -r`
+
+       NOTE: Depending on the server hardware, the RAMDISK file name
+             may be different.
+
+    c. To load the driver, reboot the host.
+
+    d. Instead of above step mentioned in a,b,c user can try "dracut -f"
+       "dracut -f" rebuilds the current ramdisk by overwriting it.
+       It will load the driver with any options found in the file
+       /etc/modprobe.d/modprobe.conf; it doesn't add any entries to
+       /etc/modprobe.d/modprobe.conf or create a backup of the ramdisk.
+
+ 5. Automatically load the driver by rebuilding the RAM disk to
+    include the driver.
+
+    * Create a copy of the current RAMDISK by issuing the following
+      commands:
+
+       # cd /boot
+
+       # cp initrd-[kernel version].img initrd-[kernel
+          version].img.bak
+
+       # mkinitrd
+
+      NOTE: Depending on the server hardware, the RAMDISK file name
+            may be different.
+
+    * To load the driver, reboot the host.
+
+4.2 Build Script Directives.
+
+   The following describes the various build.sh directives:
+
+   Start by changing to the driver source directory:
+
+   # cd <driver source>
+
+   Then build.sh can be invoked in the following manner:
+
+   # ./extras/build.sh
+
+    Build the driver sources based on the standard
+    RHEL/SLES/OEL/Citrix XenServer  build environment.
+
+   # ./extras/build.sh clean
+
+     Clean driver source directory of all build files (i.e. *.ko, *.o, etc).
+
+   # ./extras/build.sh new
+
+     Rebuild the driver sources from scratch.
+     This is essentially a shortcut for:
+
+        # ./build.sh clean
+        # ./build.sh
+
+   # ./extras/build.sh install
+
+     Build and install the driver module files.
+     This command performs the following:
+
+        1. Builds the driver .ko files.
+
+        2. Copies the .ko files to the appropriate
+	   /lib/modules/... directory.
+
+   # ./extras/build.sh remove
+
+     Remove/uninstall the driver module files.
+     This command performs the following:
+
+        1. Uninstalls the driver .ko files from the appropriate
+	   /lib/modules/... directory.
+
+        2. Rebuilds the initrd image with the /sbin/mk_initrd command.
+
+   # ./extras/build.sh initrd
+
+     Build, install, and update the initrd image.
+     This command performs the following:
+
+        1. All steps in the 'install' directive.
+        2. Rebuilds the initrd image with the /sbin/mk_initrd command.
+
+   NOTE: To build drivers, a kernel with full development package is required.
+
+         ------------------------------------------------------------------
+   NOTE: Installing from source, when a driver binary RPM is already
+         installed, is not supported. Please remove any driver binary RPMs
+         before proceeding with this installation.
+         ------------------------------------------------------------------
+
+4.3 NPIV Support
+   Initiator mode driver supports up to 64 NPIV ports per port.
+
+4.4 Updating the Driver from rpm
+
+   1. To install qla2xxx driver source from rpm
+
+   # rpm -ihv qlgc-qla2xxx-[driver version].[os string].x86_64.rpm
+
+   2. To install qla2xxx driver module
+
+   # rpm -ihv kmod-qlgc-qla2xxx-[driver version].[os string].x86_64.rpm
+
+         ------------------------------------------------------------------
+   NOTE: Installing a driver binary RPM, when a source built driver is
+         already installed, is not supported. Please remove source built
+         driver binaries by running:
+            # ./extras/build.sh remove
+
+         ..before proceeding with this installation.
+         ------------------------------------------------------------------
+
+5. Additional Notes
+
+   5.1 Boot from SAN
+   5.2 NVMe CLI version
+   5.3 FC-NVMe Udev Rule for Auto-discovery
+   5.4 System parameters
+   5.5 Dynamically Modifying SCSI Denylist Entries
+   5.6 VPD r/w failed error
+   5.7 FC-NVMe Host NQN Requirements for Array Vendor
+   5.8 FC-NVMe Multipath Support
+   5.9 FC-NVMe Boot from SAN Support
+   5.10 Driver Unload with FC-NVMe device
+   5.11 SAN Congestion Management
+   5.12 EDIF(Encryption of Data In-Flight)
+   5.13 Crash configuration for NVMe BFS Namespace.
+   5.14 Interrupt Coalescing
+
+
+5.1 Boot from SAN
+
+Booting from SAN means booting to the OS from a Fibre Channel target
+device. We recommend using the Marvell inbox driver to install the OS
+to a Fibre Channel target device that is attached to a Marvell adapter.
+If there is no Marvell inbox driver that supports the adapter, you
+should use a DD-kit to boot from SAN.
+
+
+5.2 NVMe CLI version
+
+To use the NVMe feature, a minimum NVMe CLI version of 1.4 needs to be installed.
+
+5.3 FC-NVMe udev rule for auto-discovery
+
+FC-NVMe transport requires NVMe CLI to discover LUNs exported by NVMe controller. We
+recommend installing udev rule from <driver_src>/extras/99-nvme-fc.rules to facilitate
+discovery of NVMe LUNs after driver is loaded.
+
+Inbox drivers for RHEL7.6, SLES15 and SLES12 SP 4 do not have the udev rule installed 
+at the /etc/udev/rules.d directory and requires manual intervention.  This means NVMe
+devices may not be auto-discovered with Inbox driver, unless the rule is installed.  
+The OOB drivers install the 99-nvme-fc.rules file.
+
+To install udev rule; from the driver source directory run
+
+    # ./extras/build.sh install_udev
+
+    This installs a udev rule that services the udev request sent by the nvme-fc
+    transport layer. As target devices are discovered they are registered with the
+    nvme-fc transport layer. This layer will make a udev request to start the
+    discovery process via nvme-cli.
+
+    Note:
+    1. Check where the nvme cli is installed by
+       # which nvme
+
+       This is the contents of the /etc/udev/rules.d/99-nvme-fc.rule
+   
+       ACTION=="change", SUBSYSTEM=="fc", ENV{FC_EVENT}=="nvmediscovery", \
+       ENV{NVMEFC_HOST_TRADDR}=="*", ENV{NVMEFC_TRADDR}=="*", \
+       RUN+="/bin/bash -c 'PATH=/usr/local/sbin:/usr/sbin; \
+       nvme connect-all --transport=fc \
+       --host-traddr=$env{NVMEFC_HOST_TRADDR} \
+       --traddr=$env{NVMEFC_TRADDR} >> /tmp/nvme_fc.log'"	   
+
+5.4 System parameters
+
+   The driver gets its parameters when specified with the insmod command.
+   For example:
+
+       # insmod qla2xxx.ko logging=1
+
+   or
+
+      # modprobe qla2xxx.ko logging=1
+
+   If using the modprobe command, you must specify the parameters as options
+   in the /etc/modprobe.d/qla2xxx.conf file.
+
+   For example, /etc/modprobe.d/qla2xxx.conf contains:
+       options qla2xxx logging=1
+
+   For example, /etc/modprobe.d/qla2xxx.conf contains:
+       options qla2xxx ql2xnvmeenable=0
+
+   For example, /etc/modprobe.d/qla2xxx.conf contains:
+       options qla2xxx ql2xnvmeenable=1
+
+   For example, /etc/modprobe.d/qla2xxx.conf contains:
+       options qla2xxx ql2xnvmeenable=1 logging=1
+
+   Note: Rebuild the boot image when making changes to the driver qla2xxx.conf file.
+	   The boot image rebuild will make the change persistent.  
+	   Refer to section 4 of this document.
+
+   To disable NVMe prior to the Linux system booting with the inbox driver, you can 
+   include a driver option at the bootstrap area or grub prior to performing an 
+   OS installation or system reboot.  
+   Note: This is not persistent.
+
+   Press the Tab key when you see the boot image name, during the Linux system boot up.
+   Hightlight the boot image name and press "e" to enter and edit the grub or bootstrap.
+   Find the line that shows "linux /boot/vmlinuz.x.y... root=..." or 
+   "linuxefi /vmlinuz.x.y.. root=...".  This line will also have system options declared.  
+   Append the qla2xxx.ql2xnvmeenable=0 at the end of that line.  To continue booting the 
+   system with the added option, reference the message shown below that window.
+   
+   The above example uses the appended qla2xxx.<parameter>=x.  Reference parameters below.
+ 
+	   
+Parameters for the Linux driver include the following:
+
+ * ql2xlogintimeout - Defines the login timeout value in seconds
+   during the initial login. Default: 20 seconds
+
+ * qlport_down_retry - Defines how long to wait for a port that
+   returns a PORT-DOWN status before returning I/O back to the OS.
+   Default: 30 seconds
+
+ * ql2xplogiabsentdevice - Enables PLOGI to devices that are not
+   present after a Fabric scan. This is needed for several broken
+   switches. Default is 0 - no PLOGI. 1 - perfom PLOGI.
+
+ * ql2xloginretrycount - Specifies an alternate value for the NVRAM
+   login retry count. Default is 8.
+
+ * ql2xallocfwdump - Enables allocation of memory for a firmware dump
+   during initialization. Memory allocation requirements vary by type.
+   Default is 1 - allocate memory.
+
+ * ql2xextended_error_logging - Defines whether the driver prints
+   verbose logging information. 0 to disable; 1 to enable. Default: 0.
+   Alias name: logging
+
+ * ql2xfdmienable - Enables FDMI registrations
+   Default is 0 - no FDMI. 1 - perfom FDMI.
+   Alias name: fdmi
+
+ * ql2xmaxqdepth - Defines the maximum queue depth reported to SCSI
+   mid-level per device. The Queue depth specifies the number of
+   outstanding requests per LUN. Default is 32.
+
+ * ql2xqfullrampup - Number of seconds to wait to begin to ramp-up
+   of the queue depth for a device after a queue-full condition has
+   been detected. Default is 120 seconds.
+
+ * ql2xqfulltracking - Controls whether the driver tracks queue full
+   status returns and dynamically adjusts a SCSI device's queue depth.
+   Default is 1 to perform tracking. Set to 0 to disable tracking and
+   adjustment of queue.
+
+ * ql2xfwloadbin - Specifies location from which to load ISP firmware.
+    2 - load firmware via the request_firmware() interface.
+    1 - load firmware from Flash.
+    0 - use default semantics.
+    Alias name: fwload
+
+ * ql2xshiftctondsd - Set to control shifting of command type processing
+   based on total number of SG elements. Default is 6.
+
+ * ql2xenabledif - Enables T10 DIF support. Default is 2.
+    2 - enable DIF for all types, except Type 0.
+    1 - enable T10 DIF.
+    0 - disable T10 DIF.
+
+ * ql2xenablehba_err_chk - Enable T10 DIF Error isolation. Default is 2.
+    2 - enable error isolation for all Types.
+    1 - enable error isolation only for DIF Type 0.
+    0 - disable error isolation.
+
+ * ql2xiidmaenable - Enable iIDMA. Default is 1.
+    1 - enable iIDMA.
+    0 - disable iIDMA.
+
+ * ql2xmaxqueues - Enable multiple queues. Default is 1 (single queue).
+   Sets the number of queues in multiqueue mode.
+
+ * ql2xmultique_tag - Enable CPU affinity to IO request/response.
+   Default is 0.
+    1 - enable cpu affinity.
+    0 - disable cpu affinity.
+
+ * ql2xetsenable - Enable firmware ETS burst. Default is 0.
+    1 - enable firmware ETS burst.
+    0 - disable firmware ETS burst.
+
+ * ql2xdbwr - Specifies scheme for request queue posting. Default is 1.
+    1 - CAMRAM doorbell (faster).
+    0 - Regular doorbell.
+
+ * ql2xdontresethba - Specifies reset behaviour. Default is 0.
+    0 - Reset on failure.
+    1 - Do not reset on failure.
+
+ * ql2xmaxlun - Specifies maximum LUN's to register with SCSI midlayer.
+   Default is 65535.
+
+ * ql2xtargetreset - Enable target reset on error handling. Default is 1.
+    1 - enable target reset on IO completion error.
+    0 - disable target reset on IO completion error.
+
+ * ql2xgffidenable - Enable GFF_ID checking of port type. Default is 0.
+    1 - enable GFF_ID port type checking.
+    0 - disable GFF_ID port type checking.
+
+ * ql2xasynctmfenable - Specify mechanism for Task Management (TM) commands.
+   Default is 0.
+    1 - issue TM commands asynchonously using IOCB's.
+    0 - issue TM commands using MBC's.
+
+ * ql2xnvmeenable - NVMe feature option. OOB Driver Default is 0.
+    0 - disable NVMe.
+    1 - enable NVMe.
+
+ * The following module parameters are meant for fine tuning I/O
+   throttling and any changes to them may have a severe performance
+   impact. These are experimental and will be removed in future releases.
+   Please consult Marvell's engineering team before making any changes,
+   if at all.
+ * ql2x_scmr_drop_pct
+ * ql2x_scmr_drop_pct_low_wm
+ * ql2x_scmr_up_pct
+ * ql2x_scmr_use_slow_queue
+ * ql2x_scmr_cg_io_status
+
+To view the list of parameters, enter the following command
+
+ # /sbin/modinfo qla2xxx
+
+
+5.5 Dynamically Modifying SCSI Denylist Entries
+
+On 3.10.x kernels, you can dynamically change the SCSI denylist,
+either by writing to a /proc entry or using the scsi_mod module
+parameter, which allows persistence across reboot.
+
+This requires the SCSI Vendor/Model information for the SCSI device,
+available at /proc/scsi/scsi.
+Denylist entries are in the following form:
+
+ vendor:model:flags[v:m:f]
+
+Where flags can be the following integer values:
+
+ 0x001    /* Only scan LUN 0 */
+ 0x002    /* Known to have LUNs, force scanning, deprecated: Use
+             max_luns=N */
+ 0x004    /* Flag for broken handshaking */
+ 0x008    /* unlock by special command */
+ 0x010    /* Do not use LUNs in parallel */
+ 0x020    /* Buggy Tagged Command Queuing */
+ 0x040    /* Non-consecutive LUN numbering */
+             - -> value need to be passed to "flags" variable for
+             sparse LUN
+ 0x080    /* Avoid LUNS >= 5 */
+ 0x100    /* Treat as (removable) CD-ROM */
+ 0x200    /* LUNs past 7 on a SCSI-2 device */
+ 0x400    /* override additional length field */
+ 0x800    /* ... for broken inquiry responses */
+ 0x1000   /* do not do automatic start on add */
+ 0x2000   /* do not send ms page 0x08 */
+ 0x4000   /* do not send ms page 0x3f */
+ 0x8000   /* use 10 byte ms before 6 byte ms */
+ 0x10000  /* 192 byte ms page 0x3f request */
+ 0x20000  /* try REPORT_LUNS even for SCSI-2 devs (if supports more
+             than 8 LUNs) */
+ 0x40000  /* don't try REPORT_LUNS scan (SCSI-3 devs) */
+ 0x80000  /* don't use PREVENT-ALLOW commands */
+ 0x100000 /* device is actually for RAID config */
+ 0x200000 /* select without ATN */
+ 0x400000 /* retry HARDWARE_ERROR */
+
+For example:
+
+ # echo <VENDOR>:<MODEL>:040  > /proc/scsi/device_info
+
+To enable persistence across reboots:
+
+ 1. Edit the following file (based on distribution):
+
+     /etc/modprobe.conf for RHEL 5
+
+ 2. Add the following line to the file:
+
+     options scsi_mod  dev_flags=<VENDOR>:<MODEL>:<FLAGS>
+
+ 3. Rebuild the RAMDISK (refer to section 4.3, step 4).
+
+
+5.6 VPD r/w failed error
+
+If the following message is seen in the system logs:
+
+	qla2xxx 0000:20:00.3: vpd r/w failed
+
+it can be safely ignored, since there is a known issue with kernel
+PCIe system trying to overread (32K, in 4K chunks) the VPD data
+from the card's flash/nvram.
+
+This happens whenever any attempt is made to read from the sysfs
+node /sys/bus/pci/devices/<PCI bus addres>/vpd.
+
+There is already a Bugzilla (924493) opened with SUSE and they
+agreed that the issue is with PCIe system overreading the VPD.
+
+This problem does not occur when reading from the qla2xxx driver's
+sysfs node /sys/devices/<PCI bus addres>/hostx/vpd, this results in
+reading exactly 512 bytes which is the VPD's exact maximum length.
+
+The Marvell tools access the qla2xxx driver's sysfs node, and so do
+not see or cause this problem.
+
+
+5.7 FC-NVMe Host NQN Requirements for Array Vendor
+
+Some arrays require that hostnqn file is avaiable at /etc/nvme/hostnqn to identify
+unique connection. Following describes method to generate hostnqn for storage
+arrays which require them.
+
+SLES:
+
+Install nvme-cli and check for /etc/nvme/hostnqn file. This file should include
+the hostnqn information.
+
+RHEL:
+
+Generate a hostnqn by running following command
+
+echo `nvme gen-hostnqn`  >  /etc/nvme/hostnqn
+For both distro’s verify the hostnqn information by running following command
+
+The hostnqn can be verified as follows:
+# cat /etc/nvme/hostnqn
+
+Output will be similar below
+nqn.2014-08.org.nvmexpress:uuid:c55ba8f6-8dd0-4c69-8cbe-b9f96dc92417
+
+5.8 FC-NVMe Multipath Support
+
+ANA supports native NVMe multipath on SLES15SP1MU5, SLES15SP2, SLES12SP5,
+and RHEL8.2/8.3.  For other operating systems kernel multipath is supported.
+
+5.9 FC-NVMe Boot From SAN support
+
+FC-NVMe Boot From SAN configuration is supported on Linux distributions that support it (e.g.: SLES15 SP3).
+
+5.10 Driver Unload with FC-NVMe device
+
+Follow the instructions below to unload and reload the Linux driver.
+
+To unload and reload the Linux driver:
+
+    1. List all the FC-NVMe connected target controllers by issuing the
+       following command:
+
+	# ls /dev/nvme* | grep -E nvme[0-9]+$
+
+       The preceding command should list all connected /dev/nvme[x]devices.
+	For example:
+
+	/dev/nvme0
+	/dev/nvme1
+
+    2. Disconnect all of the FC-NVMe target devices by issuing the following
+       commands to each of the /dev/nvme[x] devices listed in Step 1:
+
+	# nvme disconnect -d /dev/nvme0
+	# nvme disconnect -d /dev/nvme1
+
+    3. Unload the current driver by issuing the following command:
+
+	# modprobe -r qla2xxx
+
+    4. Reload the driver to auto-discover the FC-NVMe subsystems by issuing
+       the following command:
+
+	# modprobe -v qla2xxx
+
+
+5.11 Universal SAN Congestion Mitigation
+
+	The USCM feature helps mitigate both potential or actual congestion occurrences
+	in the FC SAN environment. An FC port can become congested because of events
+	such as link instability, credit stall and oversubscription.
+
+	The qla2xxx driver v10.02.xx.yy.zz-k has the ability to report and handle
+	SAN Congestion wherein the driver on receiving an FPIN (Fabric Performance
+	Impact Notification) ELS can:
+
+	1. Forward the ELS payload to the fc_transport to process the notification.
+
+	2. Track the error stats internally which can be used by user space applications
+	to display the information to the SAN administrator.
+
+	3. Mitigate congestion -
+
+	This is accomplished using two mechanisms:
+	a. Host based request throttling
+
+	   The following module parameters control throttling based intervention that
+       the driver is capable of initiating when the fabric reports congestion using FPINs.
+
+       ql2x_scmr_profile - Throttle Requests based on preset profiles.
+       Acceptable Values:
+       0 - Monitor only (Default) - Reports congestion and records statistics.
+           Does not throttle.
+       1 - Conservative - Throttles requests on congestion, attempting to maintain
+           the port performance as close as possible to pre-congestion values.
+       2 - Moderate - Throttles requests on congestion, attempting to find a
+           balance between reducing congestion without giving up much in terms
+           of pre-congestion performance.
+       3 - Aggressive - Throttles requests on congestion, attempting to completely
+           mitigate congestion at the expense of port performance.
+
+       This module parameter is honored only if the USCM profile has not been
+       set by user space applications.
+
+       ql2x_scmr_drop_pct_low_wm - Do not throttle requests on an FPIN, if a
+       previous mitigation action (throttle or virtual lane switch) reduced the 
+       throughput below the specified percentage of the baseline throughput (recorded when
+       the first congestion FPIN in a congestion cycle was received).
+       Acceptable Values (1 - 99):
+       50 (Default) - Do not throttle if throughput has already dropped below 50
+       percentage of baseline.
+
+	b. Use of Virtual Lanes (28xx series of adapters when connected to Cisco fabric only)
+
+       Some of the current fabrics provide a mechanism for the host to negotiate
+       multiple virtual lanes (VLs) for different quality of service paths
+       (or lanes) where each lane could operate with a different buffer-to-buffer
+       credit set.While working with slow-drain devices, to minimize the impact
+       of traffic to/from the slow drain device on other devices, requests to that
+       device could be moved to a seperate lane.
+
+       ql2xvirtuallane - Switch slow traffic to slow VL when peer congestion
+       FPINs are received.
+       Acceptable Values:
+       0 - Disabled (Default) - Do not switch show-drain device traffic to slow VL.
+       1 - Enabled - Switch show-drain device traffic to slow VL.
+
+       Note: Currently, this feature is only supported in a pure Cisco fabric
+       environment. Hence this module parameter should only be enabled if running
+       within a Cisco fabric, with a fabric OS version which supports the
+       equivalent feature on the fabric.
+
+5.12 EDIF(Encryption of Data In-Flight)
+     Encryption is now available with qla2xxx driver.  This feature requires
+     additional Marvell’s Strong Swan software to act as key 
+     negotiation/management.  In addition, the remote target device is also
+     required to have similar feature.  It’s available with certain latest 28xx
+     adapter family ( ISP2x89 ).
+
+     #  cat /sys/class/scsi_host/host7/isp_name 
+     ISP2089
+
+     EDIF supports 
+      - IKE v2 protocol and FC-SP-2 compliant
+      - 128 and 256 bit keys  (GSM/encrypt & GMAC/non-encrypt/debug)
+      - 1024 Security Association, 512 tx SA, 512 rx SA
+      - Currently support 256 secure sessions per physical port (2 tx sa,
+        2 rx sa per session and rekey)
+      - FCP and NVMEoFC
+
+    Software layout:
+     - Strong Swan provides the Key negotiation.  On completion of key
+       negotiation, it generate key and SPI for 28xx hardware.
+     - qla2xxx driver provides pass through mechanism (ELS send / receive)
+       as part of key negotiation.  On completion of key negotiation by 
+       Strongswan, qla2xx provides IOCTL(s) for Key and SPI to be loaded 
+       into hardware.
+
+    To enable the feature:
+     # modprobe qla2xxx ql2xsecenable=1
+
+    Install Marvell’s StrongSwan security software and start Strong Swan (charon) daemon
+     # ipsec start
+
+5.13 Crash configuration for NVMe BFS Namespace.
+     Kernel crash dump over FC-NVME is not supported with the qla2xxx driver packaged
+     with distributions that has version 10.02.00.107-k or lower. The driver supplied
+     with this package supports kernel crash dump over FC-NVME.
+     The following step allow to rebuild a kdump kernel with this driver:
+      # mkdumprd -f <image>
+       e.g. mkdumprd -f initrd-5.3.18-57-default-kdump
+
+5.14 Interrupt Coalescing
+     By default, qla2xxx driver enables interrupt coalescing wherein the adapter combines
+     multiple I/O completions and notifies the server with a single interrupt. This feature,
+     called as Zero Interrupt Operation (zio), helps avoid CPU context switches due to the
+     interrupts thereby improving CPU utilization.
+
+     However, for workloads that are I/O latency sensitive, it is beneficial for the driver
+     and storage stack to get notified of an I/O completion as soon as the adapter posts the
+     completion. In such cases, Marvell recommends to disable zio mode in the qla2xxx driver.
+
+     To check the current zio mode, use the following command:
+      # cat /sys/class/scsi_host/host15/zio
+        Mode 6
+
+     Steps to disable zio:
+     1. Disable ZIO:
+        # echo 0 > /sys/class/scsi_host/host15/zio
+
+     2. Confirm the zio status:
+        # cat /sys/class/scsi_host/host15/zio
+         Disabled
+
+     Steps to enable zio:
+     1. Enable ZIO:
+        # echo 6 > /sys/class/scsi_host/host15/zio
+
+     2. Confirm the zio status:
+        # cat /sys/class/scsi_host/host15/zio
+          Mode 6
+
+6. Contacting Support
+
+For further assistance, please contact Marvell Technical Support at:
+    https://www.marvell.com/support/fibre-channel-adapters.html
+
+Copyright(c) 2023 Marvell. All rights reserved.
+Cavium and QLogic, and their respective logos, are registered
+trademark of Marvell. All other brand and product names are
+trademarks or registered trademarks of their respective owners.

@@ -1,0 +1,7 @@
+#
+# Copyright (c) 2018-2021 Marvell.
+# RULES FILE: located in /etc/udev/rules.d/
+#
+
+# qla2xxx driver
+SUBSYSTEM=="pci", ENV{DRIVER}=="qla2xxx", ACTION=="change", RUN+="/lib/udev/qla2xxx_udev.sh"

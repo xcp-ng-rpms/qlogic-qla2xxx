@@ -1,0 +1,9 @@
+#
+# Copyright (c) 2018-2020 Marvell.
+# Install this Rule to automatically scan (via Discovery Controller)
+# new FC-NVMe remote ports and auto-connect to the subsystem they report
+#
+ACTION=="change", SUBSYSTEM=="fc" ENV{FC_EVENT}=="nvmediscovery", \
+       ENV{NVMEFC_HOST_TRADDR}=="*", ENV{NVMEFC_TRADDR}=="*", \
+	RUN+="/usr/bin/systemctl --no-block start \
+	qla2xxx-nvmefc-connect@--host-traddr=$env{NVMEFC_HOST_TRADDR}\\x20--traddr=$env{NVMEFC_TRADDR}.service"

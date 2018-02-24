@@ -1,0 +1,9 @@
+[Unit]
+Description=Auto-connect to sybsystems on FC-NVMe devices during Boot
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "/usr/sbin/qla2xxx/qla2xxx_nvme_boot_connections.sh"
+
+[Install]
+WantedBy=default.target

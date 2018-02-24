@@ -1,0 +1,16 @@
+#
+# Copyright (c) 2018-2020 Marvell.
+#
+# Used by 70-nvme-autoconnect.rules
+#
+
+[Unit]
+Description=Auto-connect FC-NVMe Subsystem devices for qla2xxx
+After=syslog.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "/usr/sbin/nvme connect-all --transport=fc `/usr/bin/echo -e '%i'`"
+
+[Install]
+WantedBy=default.target
