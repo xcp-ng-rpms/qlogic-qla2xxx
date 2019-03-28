@@ -13,6 +13,7 @@ Release: 1%{?dist}
 License: GPL
 Source: https://code.citrite.net/rest/archive/latest/projects/XS/repos/driver-%{name}/archive?at=%{version}&format=tgz&prefix=driver-%{name}-%{version}#/%{name}-%{version}.tar.gz
 
+BuildRequires: gcc
 BuildRequires: kernel-devel
 Provides: vendor-driver
 Requires: %{name}-firmware
