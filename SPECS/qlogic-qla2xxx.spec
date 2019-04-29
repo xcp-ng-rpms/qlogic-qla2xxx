@@ -8,10 +8,15 @@
 
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
-Version: 8.07.00.56.71
+Version: 10.00.00.11.80.0
 Release: 1%{?dist}
 License: GPL
-Source: https://code.citrite.net/rest/archive/latest/projects/XS/repos/driver-%{name}/archive?at=%{version}&format=tgz&prefix=driver-%{name}-%{version}#/%{name}-%{version}.tar.gz
+
+Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/driver-qlogic-qla2xxx/archive?at=10.00.00.11.80.0&format=tgz&prefix=driver-qlogic-qla2xxx-10.00.00.11.80.0#/qlogic-qla2xxx-10.00.00.11.80.0.tar.gz
+
+
+Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/driver-qlogic-qla2xxx/archive?at=10.00.00.11.80.0&format=tgz&prefix=driver-qlogic-qla2xxx-10.00.00.11.80.0#/qlogic-qla2xxx-10.00.00.11.80.0.tar.gz) = d8019621a7074ad1eef5c6c2efa9a8f122ce7c49
+
 
 BuildRequires: gcc
 BuildRequires: kernel-devel
