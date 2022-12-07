@@ -1,8 +1,8 @@
-%global package_speccommit dd37d4ca3ed1dff48f132d6a5fe480d2a0e9f721
-%global usver 10.01.00.54.80.0_k
-%global xsver 3
+%global package_speccommit 69ef8d91b84aa582d717bd70d0f325ed5b2aea09
+%global usver 10.02.06.02_k
+%global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
-%global package_srccommit 10.01.00.54.80.0_k
+%global package_srccommit 10.02.06.02_k
 %define vendor_name Qlogic
 %define vendor_label qlogic
 %define driver_name qla2xxx
@@ -20,10 +20,10 @@
 
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
-Version: 10.01.00.54.80.0_k
+Version: 10.02.06.02_k
 Release: %{?xsrel}%{?dist}
 License: GPL
-Source0: qlogic-qla2xxx-10.01.00.54.80.0_k.tar.gz
+Source0: qlogic-qla2xxx-10.02.06.02_k.tar.gz
 
 BuildRequires: gcc
 BuildRequires: kernel-devel
@@ -43,10 +43,10 @@ version %{kernel_version}.
 %{?_cov_prepare}
 
 %build
-%{?_cov_wrap} %{make_build} -C /lib/modules/%{kernel_version}/build M=$(pwd) KSRC=/lib/modules/%{kernel_version}/build modules
+%{?_cov_wrap} %{make_build} -C /lib/modules/%{kernel_version}/build M=$(pwd) KVER=%{kernel_version} KSRC=/lib/modules/%{kernel_version}/build modules
 
 %install
-%{?_cov_wrap} %{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build M=$(pwd) INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
+%{?_cov_wrap} %{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build M=$(pwd) KVER=%{kernel_version} INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
 
 # mark modules executable so that strip-to-file can strip them
 find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chmod u+x
@@ -70,6 +70,9 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{?_cov_results_package}
 
 %changelog
+* Thu Sep 22 2022 Zhuangxuan Fei <zhuangxuan.fei@citrix.com> - 10.02.06.02_k-1
+- CP-40166: Upgrade qla2xxx driver to version 10.02.06.02_k
+
 * Mon Feb 14 2022 Ross Lagerwall <ross.lagerwall@citrix.com> - 10.01.00.54.80.0_k-3
 - CP-38416: Enable static analysis
 
