@@ -1,8 +1,8 @@
-%global package_speccommit 952ba751398805801e39ae394063a617bc2e2d75
-%global usver 10.02.08.01_k
+%global package_speccommit 8801dabc55238e8c75dc8c4dce04856f2325eecd
+%global usver 10.02.09.00_k
 %global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
-%global package_srccommit 10.02.08.01_k
+%global package_srccommit 10.02.09.00_k
 %define vendor_name Qlogic
 %define vendor_label qlogic
 %define driver_name qla2xxx
@@ -20,10 +20,10 @@
 
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
-Version: 10.02.08.01_k
+Version: 10.02.09.00_k
 Release: %{?xsrel}%{?dist}
 License: GPL
-Source0: qlogic-qla2xxx-10.02.08.01_k.tar.gz
+Source0: qlogic-qla2xxx-10.02.09.00_k.tar.gz
 
 BuildRequires: kernel-devel
 %{?_cov_buildrequires}
@@ -69,6 +69,9 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{?_cov_results_package}
 
 %changelog
+* Fri May 19 2023 Stephen Cheng <stephen.cheng@citrix.com> - 10.02.09.00_k-1
+- CP-41026: Upgrade qla2xxx driver to version 10.02.09.00_k
+
 * Thu Nov 17 2022 Zhuangxuan Fei <zhuangxuan.fei@citrix.com> - 10.02.08.01_k-1
 - CP-41022: Upgrade qla2xxx driver to version 10.02.08.01_k
 
