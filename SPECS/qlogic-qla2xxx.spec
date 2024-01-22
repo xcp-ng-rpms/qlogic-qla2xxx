@@ -1,6 +1,6 @@
-%global package_speccommit 8801dabc55238e8c75dc8c4dce04856f2325eecd
+%global package_speccommit d29f452c3e069b757f52e0de7fb13d08e2319cb6
 %global usver 10.02.09.00_k
-%global xsver 1
+%global xsver 2
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %global package_srccommit 10.02.09.00_k
 %define vendor_name Qlogic
@@ -24,6 +24,7 @@ Version: 10.02.09.00_k
 Release: %{?xsrel}%{?dist}
 License: GPL
 Source0: qlogic-qla2xxx-10.02.09.00_k.tar.gz
+Patch0: fix-livepatching.patch
 
 BuildRequires: gcc
 BuildRequires: kernel-devel
@@ -70,6 +71,9 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{?_cov_results_package}
 
 %changelog
+* Mon Aug 21 2023 Ross Lagerwall <ross.lagerwall@citrix.com> - 10.02.09.00_k-2
+- CA-381740: Fix livepatching with the qla2xxx module
+
 * Fri May 19 2023 Stephen Cheng <stephen.cheng@citrix.com> - 10.02.09.00_k-1
 - CP-41026: Upgrade qla2xxx driver to version 10.02.09.00_k
 
