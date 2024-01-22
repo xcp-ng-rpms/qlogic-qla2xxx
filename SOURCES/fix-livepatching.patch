@@ -1,0 +1,21 @@
+Fix use of live patching with the qla2xxx module
+
+For some reason, the driver marks its directory as non-standard which prevents
+objtool running on the object files. This in turn means that its stack traces
+are marked as unreliable and therefore live patches fail to apply when this
+module is in use.
+
+Fix it by dropping the directive. This directive should only be used for
+particularly "special" object files (e.g. vdso).
+
+Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+diff --git a/Makefile b/Makefile
+index 1a05c62..a279091 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,5 +1,4 @@
+ OPTIONS := -mindirect-branch-register
+-OBJECT_FILES_NON_STANDARD := y
+ 
+ sles_distro := $(wildcard /etc/SuSE-release)
+ rhel_distro := $(wildcard /etc/redhat-release)
