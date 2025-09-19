@@ -1,8 +1,8 @@
-%global package_speccommit 3cb7ba2cd3cf15daa9b0aa3290a34ae038e9dbb2
-%global usver 10.02.12.01_k
+%global package_speccommit 5670d9557cca9b95f51b25a59e2a1f694873aa7e
+%global usver 10.02.13.00_k
 %global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
-%global package_srccommit 10.02.12.01_k
+%global package_srccommit 10.02.13.00_k
 %define vendor_name Qlogic
 %define vendor_label qlogic
 %define driver_name qla2xxx
@@ -20,10 +20,10 @@
 
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
-Version: 10.02.12.01_k
+Version: 10.02.13.00_k
 Release: %{?xsrel}%{?dist}
 License: GPL
-Source0: qlogic-qla2xxx-10.02.12.01_k.tar.gz
+Source0: qlogic-qla2xxx-10.02.13.00_k.tar.gz
 Patch0: fix-livepatching.patch
 
 BuildRequires: gcc
@@ -71,6 +71,10 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{?_cov_results_package}
 
 %changelog
+
+* Thu Feb 20 2025 Stephen Cheng <stephen.cheng@cloud.com> - 10.02.13.00_k-1
+- CP-53545: Upgrade qla2xxx driver to version 10.02.13.00_k
+
 * Tue Aug 13 2024 Stephen Cheng <stephen.cheng@cloud.com> - 10.02.12.01_k-1
 - CP-50623: Upgrade qla2xxx driver to version 10.02.12.01_k
 
