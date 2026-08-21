@@ -21,13 +21,13 @@
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
 Version: 10.02.13.00_k
-Release: %{?xsrel}%{?dist}
+Release: %{?xsrel}.0.kernelpreview.1%{?dist}
 License: GPL
 Source0: qlogic-qla2xxx-10.02.13.00_k.tar.gz
 Patch0: fix-livepatching.patch
 
 BuildRequires: gcc
-BuildRequires: kernel-devel
+BuildRequires: kernel-devel >= 4.19.325-cip137.8.0.46.16
 %{?_cov_buildrequires}
 Provides: vendor-driver
 Requires: %{name}-firmware
@@ -71,6 +71,9 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{?_cov_results_package}
 
 %changelog
+* Mon Nov 16 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 10.02.13.00_k-1.0.kernelpreview.1
+- Rebuild for kernel v4.19.325-cip137
+
 
 * Thu Feb 20 2025 Stephen Cheng <stephen.cheng@cloud.com> - 10.02.13.00_k-1
 - CP-53545: Upgrade qla2xxx driver to version 10.02.13.00_k
