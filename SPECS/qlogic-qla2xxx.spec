@@ -21,7 +21,10 @@
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
 Version: 10.02.13.00_k
-Release: %{?xsrel}%{?dist}
+Release: %{?xsrel}.1%{?dist}
+# Built against new kABI after cip rebase
+Requires: xcpng-kernel-kabi = 4.19.325-cip134+
+
 License: GPL
 Source0: qlogic-qla2xxx-10.02.13.00_k.tar.gz
 Patch0: fix-livepatching.patch
@@ -71,6 +74,9 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{?_cov_results_package}
 
 %changelog
+* Mon Aug 31 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 10.02.13.00_k-1.1
+- Rebuild for kernel v4.19.325-cip134
+
 
 * Thu Feb 20 2025 Stephen Cheng <stephen.cheng@cloud.com> - 10.02.13.00_k-1
 - CP-53545: Upgrade qla2xxx driver to version 10.02.13.00_k
