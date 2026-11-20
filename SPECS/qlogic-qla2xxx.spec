@@ -21,7 +21,7 @@
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
 Version: 10.02.13.00_k
-Release: %{?xsrel}.0.kernelpreview.1%{?dist}
+Release: %{?xsrel}.0.kernelpreview.1.0.testv0.1%{?dist}
 License: GPL
 Source0: qlogic-qla2xxx-10.02.13.00_k.tar.gz
 Patch0: fix-livepatching.patch
